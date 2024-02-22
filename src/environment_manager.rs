@@ -20,6 +20,13 @@ impl EnvironmentManager {
         value
     }
     pub fn get(&self, name: String) -> Option<EvalType> {
-        self.env.get(&name).map(|x| x.clone())
+        if let Some(value) = self.env.get(&name) {
+            return Some(value.clone());
+        } else {
+            if let Some(parent) = &self.parent {
+                return parent.borrow().get(name);
+            }
+        }
+        None
     }
 }

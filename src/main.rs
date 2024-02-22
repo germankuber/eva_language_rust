@@ -353,6 +353,38 @@ mod tests {
     }
 
     #[test]
+    fn test_begin_block_concatenate_assign_variable() {
+        assert_eq!(
+            Eva::new().eval(vec![
+                EvalType::BeginBlock(vec![
+                    EvalType::Operations(vec![
+                        EvalType::Keyword(EvalTypeKeyword::Var),
+                        EvalType::VariableName("value".to_owned()),
+                        EvalType::Number(10),
+                    ]),
+                    EvalType::Operations(vec![
+                        EvalType::Keyword(EvalTypeKeyword::Var),
+                        EvalType::VariableName("result".to_owned()),
+                        EvalType::BeginBlock(vec![
+                            EvalType::Operations(vec![
+                                EvalType::Keyword(EvalTypeKeyword::Var),
+                                EvalType::VariableName("x".to_owned()),
+                                EvalType::Operations(vec![
+                                    EvalType::Operator(EvalTypeOperation::Add),
+                                    EvalType::VariableName("value".to_owned()),
+                                    EvalType::Number(10),
+                                ]),
+                                EvalType::VariableName("x".to_owned()),
+                            ]),
+                        ]),
+                    ]),
+                    EvalType::VariableName("result".to_owned()),
+                ]),
+            ], get_environment_manager()),
+            EvalType::Number(20));
+    }
+
+    #[test]
     fn get_global_variable() {
         let eva = Eva::new();
         let environment_manager = get_environment_manager();
