@@ -19,6 +19,17 @@ impl EnvironmentManager {
         self.env.insert(name, value.clone());
         value
     }
+    pub fn assign(&mut self, name: String, value: EvalType) -> Option<EvalType> {
+        if self.env.contains_key(&name) {
+            self.env.insert(name, value.clone());
+            return Some(value);
+        } else {
+            if let Some(parent) = &self.parent {
+                return parent.borrow_mut().assign(name, value);
+            }
+        }
+        None
+    }
     pub fn get(&self, name: String) -> Option<EvalType> {
         if let Some(value) = self.env.get(&name) {
             return Some(value.clone());

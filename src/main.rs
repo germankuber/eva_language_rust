@@ -18,6 +18,7 @@ enum EvalTypeOperation {
 #[derive(PartialEq, Debug, Clone)]
 enum EvalTypeKeyword {
     Var,
+    Set,
 }
 
 #[derive(PartialEq, Debug, Clone)]
@@ -77,6 +78,15 @@ impl Eva {
                     }
                     let var_value = self.get_var_value(&self.eval(exp[1..].to_vec(), Rc::clone(&env_manager)));
                     return env_manager.borrow_mut().define(var_name.clone(), var_value);
+                }
+            }
+            EvalTypeKeyword::Set => {
+                if let EvalType::VariableName(var_name) = &exp[0] {
+                    let var_value = self.get_var_value(&self.eval(exp[1..].to_vec(), Rc::clone(&env_manager)));
+                    if let Some(value) = env_manager.borrow_mut().assign(var_name.clone(), var_value) {
+                        return value;
+                    }
+                    panic!("Variable {} does not exist", var_name)
                 }
             }
         }
@@ -382,6 +392,29 @@ mod tests {
                 ]),
             ], get_environment_manager()),
             EvalType::Number(20));
+    }
+
+    #[test]
+    fn test_assign_variable() {
+        assert_eq!(
+            Eva::new().eval(vec![
+                EvalType::BeginBlock(vec![
+                    EvalType::Operations(vec![
+                        EvalType::Keyword(EvalTypeKeyword::Var),
+                        EvalType::VariableName("data".to_owned()),
+                        EvalType::Number(10),
+                    ]),
+                    EvalType::BeginBlock(vec![
+                        EvalType::Operations(vec![
+                            EvalType::Keyword(EvalTypeKeyword::Set),
+                            EvalType::VariableName("data".to_owned()),
+                            EvalType::Number(100),
+                        ]),
+                    ]),
+                    EvalType::VariableName("data".to_owned()),
+                ]),
+            ], get_environment_manager()),
+            EvalType::Number(100));
     }
 
     #[test]
