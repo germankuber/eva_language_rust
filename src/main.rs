@@ -108,7 +108,7 @@ impl Eva {
             while true {
                 match self.eval(vec![exp_content[0].clone()], Rc::clone(&env_manager)) {
                     EvalType::Value(EvalDataType::Bool(value)) => {
-                        if !value{
+                        if !value {
                             return result;
                         }
                         result = self.eval(vec![exp_content[1].clone()], Rc::clone(&env_manager));
